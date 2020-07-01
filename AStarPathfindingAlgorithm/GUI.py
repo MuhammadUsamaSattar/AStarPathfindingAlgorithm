@@ -1,6 +1,8 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 import pygame
 from pygame.locals import *
+from PySide2 import QtWidgets, QtGui, QtCore
+import sys
 
 WINDOW_WIDTH = 720  
 WINDOW_HEIGHT = 840 
@@ -10,37 +12,30 @@ Width = int(WINDOW_WIDTH/(Columns-1))
 Height = int(WINDOW_HEIGHT/(Rows-1))
 
 class GUI():
+
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
         
-        running = True
+        self.running = True
         self.startLocationSet = False
         self.endLocationSet = False
         self.obstacleLocations = []
         #self.state 
+        self.infoDisplay()
 
-        while running:
-            for event in pygame.event.get():
-                if pygame.mouse.get_pressed() == (1,0,0):
-                    if(self.startLocationSet != True):
-                        self.setStart(pygame.mouse.get_pos())
-                    elif(self.endLocationSet != True):
-                        self.setEnd(pygame.mouse.get_pos())
-                    else:
-                        self.setObstableLocations(pygame.mouse.get_pos())
-                    #elif()
-                    #print(self.startLocation)
-                elif event.type == pygame.QUIT:
-                    running = False
+        while self.running:
+            self.eventHandler()
 
             self.screen.fill((0,0,0))
 
             self.displayGrid()
+            self.displayElements()
 
             pygame.display.flip()
 
         pygame.quit()
+
 
     def displayGrid(self):
         for col in range(Columns):
@@ -52,7 +47,7 @@ class GUI():
         for row in range(Rows):
             pygame.draw.line(self.screen,(200,200,200),(0,row*Height),(WINDOW_WIDTH,row*Height))
 
-        #print(self.startLocationSet)
+    def displayElements(self):
         if (self.startLocationSet):
             pygame.draw.circle(self.screen, (0,255,0), self.startLocation, int(Width/5))
         if (self.endLocationSet):
@@ -62,6 +57,25 @@ class GUI():
             if(i !=0 and (abs(pos[0]-prev_pos[0]) == Width or abs(pos[1]-prev_pos[1]) == Height) and abs(pos[0]-prev_pos[0]) <= Width and abs(pos[1]-prev_pos[1]) <= Height):
                 pygame.draw.line(self.screen, (165,42,42),pos,prev_pos, 4) 
             prev_pos = pos
+
+    def eventHandler(self):
+        for event in pygame.event.get():
+            if pygame.mouse.get_pressed() == (1,0,0):
+                if(self.startLocationSet != True):
+                    self.setStart(pygame.mouse.get_pos())
+                elif(self.endLocationSet != True):
+                    self.setEnd(pygame.mouse.get_pos())
+                else:
+                    self.setObstableLocations(pygame.mouse.get_pos())
+
+            elif(event.type == pygame.KEYDOWN):
+                if(event.key == pygame.K_r ):
+                    self.startLocationSet = False
+                    self.endLocationSet = False
+                    self.obstacleLocations=[]
+
+            elif event.type == pygame.QUIT:
+                self.running = False
 
     def setStart(self,pos):
         locationFound = False
@@ -98,5 +112,30 @@ class GUI():
                     break
             if locationFound:
                 break
-        for val in self.obstacleLocations:
-            print (val)
+
+
+    def infoDisplay(self):
+        app = QtWidgets.QApplication(sys.argv)
+        self.infoWindow = QtWidgets.QWidget()
+        self.infoWindow.setGeometry(200,200,200,200)
+        self.infoWindow.setWindowTitle("Info")
+        self.infoWindow.setWindowIcon( QtGui.QIcon(r"resources/Icons/help.png")) 
+        self.okButton()
+        self.infoText()
+        layout = QtWidgets.QVBoxLayout(self.infoWindow)
+        layout.addWidget(self.text)
+        layout.addWidget(self.btn)
+        self.infoWindow.show()
+        app.exec_()
+
+    def okButton(self):
+        self.btn = QtWidgets.QPushButton(self.infoWindow)
+        self.btn.setText("Ok")
+        self.btn.resize(self.btn.minimumSizeHint())
+        self.btn.clicked.connect(self.infoWindow.close)
+
+    def infoText(self):
+        self.text = QtWidgets.QLabel(parent = self.infoWindow)
+        self.text.setWordWrap(True)
+        self.text.setText("""Click on a vetex to select the start point.\nThen, click on a vertex to select the end point.\nThen, hold left mouse button to draw the obstacles.\n\nPress \'R\' key to reset the software.\n""")
+        self.text.resize(self.text.minimumSizeHint())
