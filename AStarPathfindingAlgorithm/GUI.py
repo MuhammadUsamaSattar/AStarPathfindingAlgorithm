@@ -3,6 +3,7 @@ import pygame
 from pygame.locals import *
 from PySide2 import QtWidgets, QtGui, QtCore
 import sys
+from PathFindingAlgorithm import *
 
 WINDOW_WIDTH = 720  
 WINDOW_HEIGHT = 840 
@@ -20,8 +21,9 @@ class GUI():
         self.running = True
         self.startLocationSet = False
         self.endLocationSet = False
+        self.pathFound = False
         self.obstacleLocations = []
-        #self.state 
+        self.path = []
         self.infoDisplay()
 
         while self.running:
@@ -55,8 +57,11 @@ class GUI():
         prev_pos = (0,0)
         for i,pos in enumerate(self.obstacleLocations):
             if(i !=0 and (abs(pos[0]-prev_pos[0]) == Width or abs(pos[1]-prev_pos[1]) == Height) and abs(pos[0]-prev_pos[0]) <= Width and abs(pos[1]-prev_pos[1]) <= Height):
-                pygame.draw.line(self.screen, (165,42,42),pos,prev_pos, 4) 
+                pygame.draw.line(self.screen, (165,42,42),pos,prev_pos, 8) 
             prev_pos = pos
+        if(self.pathFound):
+            for i in range(len(self.path)-1):
+                pygame.draw.line(self.screen, (0,255,0),[self.path[i][0],self.path[i][1]],[self.path[i+1][0],self.path[i+1][1]], 4) 
 
     def eventHandler(self):
         for event in pygame.event.get():
@@ -73,6 +78,10 @@ class GUI():
                     self.startLocationSet = False
                     self.endLocationSet = False
                     self.obstacleLocations=[]
+                elif(event.key == pygame.K_g ):
+                    algorithm = pathFinder(self.startLocation,self.endLocation,self.obstacleLocations)
+                    self.path = algorithm.run()
+                    self.pathFound = True
 
             elif event.type == pygame.QUIT:
                 self.running = False
