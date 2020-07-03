@@ -60,6 +60,7 @@ class GUI():
                 pygame.draw.line(self.screen, (165,42,42),pos,prev_pos, 8) 
             prev_pos = pos
         if(self.pathFound):
+            print(self.path)
             for i in range(len(self.path)-1):
                 pygame.draw.line(self.screen, (0,255,0),[self.path[i][0],self.path[i][1]],[self.path[i+1][0],self.path[i+1][1]], 4) 
 
