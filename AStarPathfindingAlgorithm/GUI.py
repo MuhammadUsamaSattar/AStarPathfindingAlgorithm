@@ -80,8 +80,9 @@ class GUI():
                     self.endLocationSet = False
                     self.obstacleLocations=[]
                 elif(event.key == pygame.K_g ):
-                    algorithm = pathFinder(self.startLocation,self.endLocation,self.obstacleLocations)
+                    algorithm = pathFinder([self.startLocation[0]/30,self.startLocation[1]/35], [self.endLocation[0]/30,self.endLocation[1]/35], [[x/30,y/35] for x,y in self.obstacleLocations])
                     self.path = algorithm.run()
+                    self.path = [[x*30,y*35] for x,y in self.path]
                     self.pathFound = True
 
             elif event.type == pygame.QUIT:
