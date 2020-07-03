@@ -1,6 +1,8 @@
 import pdb
 
 class pathFinder():
+    lengthverified = 1
+
     def __init__(self, startPoint, endPoint, obstaclePoints):
         self.startPoint = startPoint
         self.endPoint = endPoint
@@ -13,21 +15,23 @@ class pathFinder():
         self.path = [self.startPoint]
 
     def run(self):
-        #try:
-        while not self.won:
-            #pdb.set_trace()
-            self.addPointToPath(self.sortOptions(self.addOptions()))
-            print(self.path)
-            self.winCondition()
-            self.loseCondition()
-            if(len(self.path) != 2):
-                if(not(self.verifyPath(self.path))):
-                    self.switchPath()
+        try:
+            while not self.won:
+                #pdb.set_trace()
+                self.addPointToPath(self.sortOptions(self.addOptions()))
+                #print(self.path)
+                self.winCondition()
+                self.loseCondition()
+                pathFinder.lengthverified += 1
+                if(len(self.path) > pathFinder.lengthverified):
+                    if(not(self.verifyPath(self.path))):
+                        self.switchPath()
+                        pathFinder.lengthverified -= 1
         
         #print(self.path)
-        return self.path
-        #except Exception as e:
-        #    print(e)
+            return self.path
+        except Exception as e:
+            print(e)
 
     def addOptions(self):
         options = []
