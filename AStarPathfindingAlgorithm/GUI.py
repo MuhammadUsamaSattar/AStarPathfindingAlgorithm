@@ -34,6 +34,10 @@ class GUI():
             self.displayGrid()
             self.displayElements()
 
+            if(self.pathFound and not self.won):
+                self.path,self.won = self.algorithm.run()
+                self.path = [[x*30,y*35] for x,y in self.path]
+
             pygame.display.flip()
 
         pygame.quit()
@@ -60,7 +64,6 @@ class GUI():
                 pygame.draw.line(self.screen, (165,42,42),pos,prev_pos, 8) 
             prev_pos = pos
         if(self.pathFound):
-            print(self.path)
             for i in range(len(self.path)-1):
                 pygame.draw.line(self.screen, (0,255,0),[self.path[i][0],self.path[i][1]],[self.path[i+1][0],self.path[i+1][1]], 4) 
 
@@ -79,9 +82,11 @@ class GUI():
                     self.startLocationSet = False
                     self.endLocationSet = False
                     self.obstacleLocations=[]
+                    self.pathFound = False
+                    self.path = []
                 elif(event.key == pygame.K_g ):
-                    algorithm = pathFinder([self.startLocation[0]/30,self.startLocation[1]/35], [self.endLocation[0]/30,self.endLocation[1]/35], [[x/30,y/35] for x,y in self.obstacleLocations])
-                    self.path = algorithm.run()
+                    self.algorithm = pathFinder([self.startLocation[0]/30,self.startLocation[1]/35], [self.endLocation[0]/30,self.endLocation[1]/35], [[x/30,y/35] for x,y in self.obstacleLocations])
+                    self.path,self.won = self.algorithm.run()
                     self.path = [[x*30,y*35] for x,y in self.path]
                     self.pathFound = True
 
