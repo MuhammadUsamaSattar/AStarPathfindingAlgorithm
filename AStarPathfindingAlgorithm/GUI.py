@@ -36,7 +36,7 @@ class GUI():
             self.displayElements()
 
             if(self.pathFound and not self.won):
-                pdb.set_trace()
+                #pdb.set_trace()
                 self.path,self.won = self.algorithm.run()
                 self.path = [[x*30,y*35] for x,y in self.path]
 
