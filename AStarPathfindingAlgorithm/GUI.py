@@ -4,6 +4,7 @@ from pygame.locals import *
 from PySide2 import QtWidgets, QtGui, QtCore
 import sys
 from PathFindingAlgorithm import *
+import pdb
 
 WINDOW_WIDTH = 720  
 WINDOW_HEIGHT = 840 
@@ -35,6 +36,7 @@ class GUI():
             self.displayElements()
 
             if(self.pathFound and not self.won):
+                pdb.set_trace()
                 self.path,self.won = self.algorithm.run()
                 self.path = [[x*30,y*35] for x,y in self.path]
 

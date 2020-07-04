@@ -15,47 +15,51 @@ class pathFinder():
         self.path = [self.startPoint]
 
     def run(self):
-        #try:
+        try:
         #if (not self.winCondition(self.path, self.endPoint)):
             #pdb.set_trace()
-        self.addPointToPath(self.path, self.closedList, self.openList, self.sortOptions(self.addOptions(self.path)))
-        if(not(self.winCondition(self.path, self.endPoint))):    print(self.path, "\n\n")
-        self.loseCondition()
-        self.optimizePath(self.path, self.path[-1], self.closedList )
-#                pathFinder.lengthverified += 1
-#                if(len(self.path) > pathFinder.lengthverified):
-#                    if(not(self.verifyPath(self.path))):
-#                        self.switchPath()
-#                        pathFinder.lengthverified -= 1
-        
-        #print(self.path)
-        return self.path, self.winCondition(self.path, self.endPoint)
-        #except Exception as e:
-        #    print(e)
+            self.addPointToPath(self.path, self.closedList, self.openList, self.sortOptions(self.addOptions(self.path, self.closedList)))
+            self.loseCondition()
+            self.optimizePath()
+            if(not(self.winCondition(self.path, self.endPoint))):    print("\n\nPath is: ",self.path, "\n\n")
+#                    pathFinder.lengthverified += 1
+#                    if(len(self.path) > pathFinder.lengthverified):
+#                        if(not(self.verifyPath(self.path))):
+#                            self.switchPath()
+#                            pathFinder.lengthverified -= 1
+            
+            #print(self.path)
+        except Exception as e:
+            print(e)
 
-    def optimizePath(self, path, target, closedList):
+        return self.path, self.winCondition(self.path, self.endPoint)
+
+    def optimizePath(self):
         #print("Entering optimzation")
-        optimumNeighbour = [[1000,1000]]
+        optimumNeighbour = []
         optimumOpenList = []
         optimumClosedList = []
-        for i,start in enumerate(closedList):
+        for i,start in enumerate(self.closedList):
             neighbour = [start[0]]
             newclosedList = [start[0]]
             newopenList = []
             length = start[1]
-            while not self.winCondition(neighbour,target):
-                self.addPointToPath(neighbour, newclosedList, newopenList, self.sortOptions(self.addOptions(neighbour)))
+            while not self.winCondition(neighbour,self.path[-1]):
+                self.addPointToPath(neighbour, newclosedList, newopenList, self.sortOptions(self.addOptions(neighbour, newclosedList)))
                 length += 1
-                if(length >= len(path)):
+                #print("Neighour is: ",neighbour,"\nwith length: ",length)
+                if(length >= len(self.path)):
                     break
-            if(length < len(optimumNeighbour)):
+            if(length < len(optimumNeighbour) or not optimumNeighbour):
+                print("Found an optimum path")
                 optimumNeighbour = neighbour
                 optimumClosedList = newclosedList
-                optimumOpenList = newOpenList
+                optimumOpenList = newopenList
         #print("Exiting optimzation")
-
-        if(len(optimumNeighbour) < len(path)):
-            path = optimumNeighbour
+        print("Optimum neighour length",len(optimumNeighbour),"     Path Length",len(self.path))
+        if(len(optimumNeighbour) < len(self.path) and optimumNeighbour):
+            print("Found a replaceable optimum path")
+            self.path = optimumNeighbour
             for point in optimumClosedList:
                 index = [p for p,l in self.closedList].index(point[0])
                 if(index):
@@ -72,13 +76,19 @@ class pathFinder():
 #    def findPath(self):
 
 
-    def addOptions(self, path):
+    def addOptions(self, path, closedList):
         options = []
         for x in [[1,0],[-1,0],[0,1],[0,-1]]:
-            if(([x[0]+path[-1][0],x[1]+path[-1][1]] not in self.obstaclePoints) and ([x[0]+path[-1][0],x[1]+path[-1][1]] not in [point for point,length in self.closedList])):
+            if(([x[0]+path[-1][0],x[1]+path[-1][1]] not in self.obstaclePoints) and ([x[0]+path[-1][0],x[1]+path[-1][1]] not in [point for point,length in closedList]) and ([x[0]+path[-1][0],x[1]+path[-1][1]] != self.startPoint)):
                 if((x[0]+path[-1][0]) > -1 and (x[0]+path[-1][0])<25 and (x[1]+path[-1][1]) > -1 and (x[1]+path[-1][1]) < 25):
                     options.append([x[0]+path[-1][0],x[1]+path[-1][1]])
         #print("Unsorted options", options)
+        if (not options):
+            if (len(path)!= 1):
+                path.pop()
+                return self.addOptions(path, self.closedList)
+            else:
+               self.loseCondition()
         return options
 
     def sortOptions(self, options):
@@ -95,7 +105,7 @@ class pathFinder():
         return options   
     
     def addPointToPath(self, path,closedList,openList, options):
-        #print(options)
+        #print("Options are: ",options)
         path.append(options[-1])
         #print(closedList)
         closedList.append([options[-1],(closedList[len(closedList)-1][1]+1)])
