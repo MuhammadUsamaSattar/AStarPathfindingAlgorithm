@@ -61,21 +61,25 @@ class pathFinder():
         #print("Exiting optimzation")
         #print("Optimum neighour length",len(optimumNeighbour),"     Path Length",len(path))
         print("Old path :", path)
-        print("Optimal neighbour", optimumNeighbour)
+        #print("Optimal neighbour", optimumNeighbour)
         if((len(optimumNeighbour) < len(path)) and (optimumNeighbour)):
             if(optimumNeighbour[0] != self.startPoint and optimumNeighbour):
                 #path = [optimumNeighbour[0]]
                 index = path.index(optimumNeighbour[0])
                 if (index):
                     path = path[:index]
+                    print("Adding path to path", path)
                 else:
                     self.addPointToPath(path, [self.startpoint], [], self.sortOptions(self.addOptions(pathBefore, [self.startPoint]),optimumNeighbour[0]))
-                path.pop()
+                    path.pop()
+                    print("Adding point to path", path)
                 print(path)
-
-            print("New path :", path)
+            else:
+                path =[]
+            print("Optimal neighbour", optimumNeighbour)
             print("Found a replaceable optimum path")
-            path = path.append(optimumNeighbour)
+            path.extend(optimumNeighbour)
+            print("New path :", path)
             for point in optimumClosedList:
                 index = [p for p,l in closedList].index(point[0])
                 if(index):
@@ -122,7 +126,7 @@ class pathFinder():
         closedList.append([options[-1],(closedList[len(closedList)-1][1]+1)])
         #print(closedList)
         options.pop()
-        openList.append(options)
+        openList.extend(options)
 
     def heuristics(self,point,goal):
         return (abs(point[0]-goal[0])+abs(point[1]-goal[1]))
