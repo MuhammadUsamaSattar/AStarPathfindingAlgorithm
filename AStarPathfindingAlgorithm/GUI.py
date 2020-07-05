@@ -25,6 +25,8 @@ class GUI():
         self.pathFound = False
         self.obstacleLocations = []
         self.path = []
+        self.closedList = []
+        self.openList = []
         self.infoDisplay()
 
         while self.running:
@@ -37,8 +39,10 @@ class GUI():
 
             if(self.pathFound and not self.won):
                 #pdb.set_trace()
-                self.path,self.won = self.algorithm.run()
+                self.path,self.closedList,self.openList,self.won = self.algorithm.run()
                 self.path = [[x*30,y*35] for x,y in self.path]
+                self.closedList = [[p[0]*30,p[1]*35] for p,l in self.closedList]
+                self.openList = [[x*30,y*35] for x,y in self.openList]
 
             pygame.display.flip()
 
@@ -65,7 +69,11 @@ class GUI():
             if(i !=0 and (abs(pos[0]-prev_pos[0]) == Width or abs(pos[1]-prev_pos[1]) == Height) and abs(pos[0]-prev_pos[0]) <= Width and abs(pos[1]-prev_pos[1]) <= Height):
                 pygame.draw.line(self.screen, (165,42,42),pos,prev_pos, 8) 
             prev_pos = pos
-        if(self.pathFound):
+        if(self.pathFound):       
+            for i in range(len(self.closedList)):
+                pygame.draw.circle(self.screen, (0,0,0), [int(self.closedList[i][0]), int(self.closedList[i][1])], int(Width/5))
+            for i in range(len(self.openList)):
+                pygame.draw.circle(self.screen, (0,0,255), [int(self.openList[i][0]), int(self.openList[i][1])], int(Width/5))
             for i in range(len(self.path)-1):
                 pygame.draw.line(self.screen, (0,255,0),[self.path[i][0],self.path[i][1]],[self.path[i+1][0],self.path[i+1][1]], 4) 
 
@@ -88,8 +96,10 @@ class GUI():
                     self.path = []
                 elif(event.key == pygame.K_g ):
                     self.algorithm = pathFinder([self.startLocation[0]/30,self.startLocation[1]/35], [self.endLocation[0]/30,self.endLocation[1]/35], [[x/30,y/35] for x,y in self.obstacleLocations])
-                    self.path,self.won = self.algorithm.run()
+                    self.path,self.closedList,self.openList,self.won = self.algorithm.run()
                     self.path = [[x*30,y*35] for x,y in self.path]
+                    self.closedList = [[p[0]*30,p[1]*35] for p,l in self.closedList]
+                    self.openList = [[x*30,y*35] for x,y in self.openList]
                     self.pathFound = True
 
             elif event.type == pygame.QUIT:
@@ -108,28 +118,29 @@ class GUI():
                 break
 
     def setEnd(self,pos):
-        locationFound = False
-        for col in range(Columns):
-            for row in range(Rows):
-                if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34)):
-                    self.endLocation = [col*Width, row*Height]
-                    locationFound = True
+            locationFound = False
+            for col in range(Columns):
+                for row in range(Rows):
+                    if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34) and [col*Width,row*Height] != self.startLocation):
+                        self.endLocation = [col*Width, row*Height]
+                        locationFound = True
+                        break
+                if locationFound:
+                    self.endLocationSet = True
                     break
-            if locationFound:
-                self.endLocationSet = True
-                break
 
     def setObstableLocations(self,pos):
-        locationFound = False
-        for col in range(Columns):
-            for row in range(Rows):
-                if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34)):
-                    if(not([col*Width, row*Height] in self.obstacleLocations)):
-                        self.obstacleLocations.append([col*Width, row*Height])
-                    locationFound = True
+        if (pos != self.startLocation and pos != self.endLocation):
+            locationFound = False
+            for col in range(Columns):
+                for row in range(Rows):
+                    if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34) and [col*Width,row*Height] != self.startLocation and [col*Width,row*Height] != self.endLocation):
+                        if(not([col*Width, row*Height] in self.obstacleLocations)):
+                            self.obstacleLocations.append([col*Width, row*Height])
+                        locationFound = True
+                        break
+                if locationFound:
                     break
-            if locationFound:
-                break
 
 
     def infoDisplay(self):
