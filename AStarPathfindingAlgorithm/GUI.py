@@ -39,7 +39,7 @@ class GUI():
 
             if(self.pathFound and not self.won):
                 #pdb.set_trace()
-                self.path,self.closedList,self.openList,self.won = self.algorithm.run()
+                self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
                 self.path = [[x*30,y*35] for x,y in self.path]
                 self.closedList = [[p[0]*30,p[1]*35] for p,l in self.closedList]
                 self.openList = [[x*30,y*35] for x,y in self.openList]
@@ -96,7 +96,7 @@ class GUI():
                     self.path = []
                 elif(event.key == pygame.K_g ):
                     self.algorithm = pathFinder([self.startLocation[0]/30,self.startLocation[1]/35], [self.endLocation[0]/30,self.endLocation[1]/35], [[x/30,y/35] for x,y in self.obstacleLocations])
-                    self.path,self.closedList,self.openList,self.won = self.algorithm.run()
+                    self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
                     self.path = [[x*30,y*35] for x,y in self.path]
                     self.closedList = [[p[0]*30,p[1]*35] for p,l in self.closedList]
                     self.openList = [[x*30,y*35] for x,y in self.openList]
