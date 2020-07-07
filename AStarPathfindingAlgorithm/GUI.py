@@ -34,15 +34,15 @@ class GUI():
 
             self.screen.fill((0,0,0))
 
-            self.displayGrid()
-            self.displayElements()
-
             if(self.pathFound and not self.won):
-                #pdb.set_trace()
+                pdb.set_trace()
                 self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
                 self.path = [[x*30,y*35] for x,y in self.path]
                 self.closedList = [[p[0]*30,p[1]*35] for p,l in self.closedList]
                 self.openList = [[x*30,y*35] for x,y in self.openList]
+
+            self.displayGrid()
+            self.displayElements()
 
             pygame.display.flip()
 
@@ -96,11 +96,13 @@ class GUI():
                     self.path = []
                 elif(event.key == pygame.K_g ):
                     self.algorithm = pathFinder([self.startLocation[0]/30,self.startLocation[1]/35], [self.endLocation[0]/30,self.endLocation[1]/35], [[x/30,y/35] for x,y in self.obstacleLocations])
+                    #pdb.set_trace()
                     self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
                     self.path = [[x*30,y*35] for x,y in self.path]
                     self.closedList = [[p[0]*30,p[1]*35] for p,l in self.closedList]
                     self.openList = [[x*30,y*35] for x,y in self.openList]
                     self.pathFound = True
+                    self.displayElements()
 
             elif event.type == pygame.QUIT:
                 self.running = False
