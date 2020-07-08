@@ -60,10 +60,6 @@ class GUI():
             pygame.draw.line(self.screen,(200,200,200),(0,row*Height),(WINDOW_WIDTH,row*Height))
 
     def displayElements(self):
-        if (self.startLocationSet):
-            pygame.draw.circle(self.screen, (0,255,0), self.startLocation, int(Width/5))
-        if (self.endLocationSet):
-            pygame.draw.circle(self.screen, (255,0,0), self.endLocation, int(Width/5))
         prev_pos = (0,0)
         for i,pos in enumerate(self.obstacleLocations):
             if(i !=0 and (abs(pos[0]-prev_pos[0]) == Width or abs(pos[1]-prev_pos[1]) == Height) and abs(pos[0]-prev_pos[0]) <= Width and abs(pos[1]-prev_pos[1]) <= Height):
@@ -76,6 +72,10 @@ class GUI():
                 pygame.draw.circle(self.screen, (0,0,255), [int(self.openList[i][0]), int(self.openList[i][1])], int(Width/5))
             for i in range(len(self.path)-1):
                 pygame.draw.line(self.screen, (0,255,0),[self.path[i][0],self.path[i][1]],[self.path[i+1][0],self.path[i+1][1]], 4) 
+        if (self.startLocationSet):
+            pygame.draw.circle(self.screen, (0,255,0), self.startLocation, int(Width/5))
+        if (self.endLocationSet):
+            pygame.draw.circle(self.screen, (255,0,0), self.endLocation, int(Width/5))
 
     def eventHandler(self):
         for event in pygame.event.get():
