@@ -14,54 +14,32 @@ class pathFinder():
         self.target = self.endPoint
         
         print("Target: ", self.target)
+        print("Closed list:", self.closedList)
+        print("Open list:", self.openList,"\n\n")
         self.addToOpen(self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
         self.sortOpen(self.openList, self.endPoint)
         self.addoptiontoPath(self.path, self.closedList, self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
         print("Path: ", self.path)
-        print("Closed list:", self.closedList)
-        print("Open list:", self.openList,"\n\n")
-
-        #return self.path, self.closedList, self.openList, self.winCondition(self.path, self.endPoint)
-        
 
     def runIter(self):
         #while not self.winCondition(path, self.endPoint):
-        try:
-            self.addToOpen(self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
-            self.sortOpen(self.openList, self.endPoint)
-            self.target = self.openList[-1]
-            print("Target: ", self.target)
-            self.path = self.makePath(self.path, self.target, self.closedList, self.openList)
-            self.path, self.closedList, self.openList = self.getOptimalPath(self.path, self.target, self.closedList, self.openList)
-            print("Path: ", self.path)
-            print("Closed list:", self.closedList)
-            print("Open list:", self.openList)
-            self.removeDuplicates(self.closedList, self.openList)
-            print("Open after clean: ", self.openList)
-            print(self.path)
-
-        #self.addToOpen(self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
-        #self.sortOpen(self.openList, self.endPoint)
-        #self.target = self.openList[-1]
-        #print("Target: ", self.target)
-        #self.path = self.makePath(self.path, self.target, self.closedList, self.openList)
-        #print("Open list after 1 is:", self.openList)
-        #self.path, self.closedList, self.openList = self.getOptimalPath(self.path, self.target, self.closedList, self.openList)
-        #print("Open list after 2 is:", self.openList)
-        ##print("Closed list:", self.closedList)
-        #print("Open list:", self.openList)
-        #print("Path: ", self.path, "\n\n")
-        ##print("New path outside: ", self.path)
-        ##self.sortOpen(self.openList, self.endPoint)
-        ##print("Outside closed list:", self.closedList)
-        ##print("Outside open list:", self.openList)
-        ##self.getOptimalPath(self.path, target, self.closedList, self.openList)
-
-        #print(self.closedList)
+        #try:
+        self.addToOpen(self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
+        self.sortOpen(self.openList, self.endPoint)
+        self.target = self.openList[-1]
+        print("Target: ", self.target)
+        print("Closed list:", self.closedList)
+        print("Open list:", self.openList)
+        self.path = self.makePath(self.path, self.target, self.closedList, self.openList)
+        self.path, self.closedList, self.openList = self.getOptimalPath(self.path, self.target, self.closedList, self.openList)
+        print("Path: ", self.path)
+        #print("Open list after:", self.openList)
+        #self.removeDuplicates(self.closedList, self.openList)
+        #print("Open after clean: ", self.openList)
         #print(self.path)
 
-        except Exception as e:
-            print(e)
+        #except Exception as e:
+        #    print(e)
 
         return self.path, self.closedList, self.openList, self.winCondition(self.path, self.endPoint)
 
@@ -102,14 +80,10 @@ class pathFinder():
         if(options[-1] in openList):
             openList.remove(options[-1])
         options.pop()
-        #openList.extend(options)
 
-    def makePath(self, path, point, closedList, openList):#, optimizeFunction = False, optimumPath = None, optimumClosedList = None, optimumOpenList = None):
-        #if(not optimizeFunction):
-            #newopenList = []
+    def makePath(self, path, point, closedList, openList):
             while not self.winCondition(path, point):
                 options = self.sortOptions(self.addOptions(path, closedList, self.obstaclePoints), point)
-                #self.addToOpenList(path, closedList, openList, self.obstaclePoints)
                 if(options):
                     self.addoptiontoPath(path, closedList, openList, options)
                     self.addToOpen(openList, self.sortOptions(self.addOptions(path, closedList, self.obstaclePoints), self.endPoint))
@@ -117,41 +91,8 @@ class pathFinder():
                     path = []
                     break
             return path
-            #self.sortOpen(openList, self.endPoint)
-            #print("Inside closed list:", closedList)
-            #print("Inside open list:", openList)
-                
-                #print(closedList)
-            #openList.extend(newopenList)
-        #else:
-        #    length = closedList[-1][1]
-        #    print("Entering optimization loop")
-        #    while not self.winCondition(path, point):
-        #        self.addToOpenList(path, closedList, openList, self.obstaclePoints)
-        #        self.sortOpen(openList, point)
-        #        self.addoptiontoPath(path, closedList, openList, self.sortOptions(self.addOptions(path, closedList, openList, self.obstaclePoints), point))
-        #        #self.addpointtoPath(path, openList[-1], closedList, openList)
-        #        length += 1
-        #        if(len(path) >= len(optimumPath)):
-        #            break
-        #    if((len(path)+length) < len(optimumPath)):
-        #        print("Replacing path")
-        #        print("Previoud path: ", optimumPath)
-        #        optimumPath = path
-        #        optimumClosedList = closedList
-        #        optimumOpenList = openList
-        #        print("New path: ", optimumPath)
-
-            #return optimumPath, optimumClosedList, optimumOpenList
-
-    #def addpointtoPath(self, path, point, closedList, openList):
-    #    path.append(point)
-    #    closedList.append([point,(len(path))])
-    #    openList.remove(point)
 
     def getOptimalPath(self, path, point, closedList, openList):
-        #print("Old path: ", path)
-        #optimumPath = []
         optimumPath = path
         optimumClosedList = []
         optimumOpenList = []
@@ -163,25 +104,45 @@ class pathFinder():
             newclosedList = [[closedPoint,length]]
             newopenList = []
             newpath = self.makePath(newpath, point, newclosedList, newopenList)
-            #print("Path closed list: ", newclosedList)
-            #print("Optimum path:", optimumPath)
             if ((newclosedList[-1][1] < len(optimumPath) or not optimumPath) and newpath):
-                #print("Replcaing with a new path")
                 optimumPath = newpath
                 optimumClosedList = newclosedList
                 optimumOpenList = newopenList
 
+        #newpath = []
+        #if(optimumPath[0] != self.startPoint):
+        #    newpath = [self.startPoint]
+        #    newclosedList = [[[self.startPoint],1]]
+        #    newopenList = []
+        #    newpath2 = []
+        #    
+        #    if(path.index(optimumPath[0])):
+        #        if(path):
+        #            newpath2 = path[:path.index(optimumPath[0])]
+        #
+        #    newpath = self.makePath(newpath, optimumPath[0], newclosedList, newopenList)
+        #    print("Newpath: ", newpath)
+        #    newpath.pop()
+        #
+        #    if(len(newpath) <= len(newpath2) or not newpath2):
+        #        self.resolveList(newclosedList, newopenList, closedList, openList)
+        #    else:
+        #        newpath = newpath2
+        #
+        #print("Optimal path: ", optimumPath)
+        #
+        #if(newpath):
+        #    path = newpath.extend(optimumPath)
+        #else:
+        #    path = optimumPath
         path = optimumPath
-        print("Optimal open list:", optimumOpenList)
-        print("Open list inside before: ", openList)
+        #print("Path inside is: ", path)
+        #print("Optimal open list:", optimumOpenList)
+        #print("Open list inside before: ", openList)
         self.resolveList(optimumClosedList, optimumOpenList, closedList, openList)
-        print("Open list inside after: ", openList)
+        #print("Open list inside after: ", openList)
 
         return path, closedList, openList
-
-        #print("New path outside func: ", path)
-        #print("New closed lsit:", optimumClosedList)
-        #self.resolveList(optimumClosedList, optimumOpenList, closedList, openList)
 
     def resolveList(self, optimumClosedList, optimumOpenList, closedList, openList):
         for point in optimumOpenList:
@@ -189,13 +150,14 @@ class pathFinder():
                 openList.append(point)
 
         for point,length in optimumClosedList:
-            #if (point in openList):
-            #    openList.remove(point)
             if(point not in [p for p,l in closedList]):
                 closedList.append([point,length])
             else:
                 closedList[[p for p,l in closedList].index(point)] = [point,length]
 
+        for point,length in closedList:
+            if(point in openList):
+                openList.remove(point) 
 
     def winCondition(self, path, goal):
         if(path[-1] == goal):
