@@ -35,7 +35,7 @@ class GUI():
             self.screen.fill((0,0,0))
 
             if(self.pathFound and not self.won):
-                pdb.set_trace()
+                #pdb.set_trace()
                 self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
                 self.path = [[x*30,y*35] for x,y in self.path]
                 self.closedList = [[p[0]*30,p[1]*35] for p,l,pp in self.closedList]
