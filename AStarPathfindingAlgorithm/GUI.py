@@ -6,8 +6,6 @@ import sys
 from PathFindingAlgorithm import *
 import pdb
 
-#COLUMNS = 50
-#ROWS = 50
 WINDOW_WIDTH = 720  
 WINDOW_HEIGHT = 840 
 Width = int(WINDOW_WIDTH/(COLUMNS-1))
@@ -174,5 +172,5 @@ class GUI():
     def infoText(self):
         self.text = QtWidgets.QLabel(parent = self.infoWindow)
         self.text.setWordWrap(True)
-        self.text.setText("""Click on a vetex to select the start point.\nThen, click on a vertex to select the end point.\nThen, hold left mouse button to draw the obstacles.\n\nPress \'R\' key to reset the software.\n""")
+        self.text.setText("""Click on a vetex to select the start point.\nThen, click on a vertex to select the end point.\nThen, hold left mouse button to draw the obstacles.\n\nPress \'R\' key to reset the software.\nPress \'G\' key to start the software.\n""")
         self.text.resize(self.text.minimumSizeHint())

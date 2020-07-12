@@ -1,7 +1,7 @@
 import math
 
-COLUMNS = 49
-ROWS = 49
+COLUMNS = 25
+ROWS = 25
 
 class pathFinder():
     def __init__(self, startPoint, endPoint, obstaclePoints):
@@ -82,19 +82,22 @@ class pathFinder():
             openList.remove(options[-1])
         options.pop()
 
-    def makePath(self, path, point, closedList, openList):
-            while not self.winCondition(path, point):
-                options = self.sortOptions(self.addOptions(path, closedList, self.obstaclePoints), point)
-                if(options):
-                    self.addoptiontoPath(path, closedList, openList, options)
-                    self.addToOpen(openList, self.sortOptions(self.addOptions(path, closedList, self.obstaclePoints), self.endPoint))
-                else:
-                    path = []
-                    break
-            return path
+    def makePath(self, path, point, closedList, openList, optimumPath = None):
+        while not self.winCondition(path, point):
+            options = self.sortOptions(self.addOptions(path, closedList, self.obstaclePoints), point)
+            if(options):
+                self.addoptiontoPath(path, closedList, openList, options)
+                self.addToOpen(openList, self.sortOptions(self.addOptions(path, closedList, self.obstaclePoints), self.endPoint))
+                if(optimumPath):
+                    if(len(path) >= len(optimumPath)):
+                        break
+            else:
+                path = []
+                break
+        return path
 
     def getOptimalPath(self, path, point, closedList, openList, mode = 'Primary'):
-        optimumPath = path
+        optimumPath = []
         optimumClosedList = closedList
         optimumOpenList = []
         newpath = []
@@ -104,11 +107,15 @@ class pathFinder():
             newpath = [closedPoint]
             newclosedList = [[closedPoint,length,prevpath]]
             newopenList = []
-            newpath = self.makePath(newpath, point, newclosedList, newopenList)
+            if(optimumPath):
+                newpath = self.makePath(newpath, point, newclosedList, newopenList, optimumPath)
+            else:
+                newpath = self.makePath(newpath, point, newclosedList, newopenList)
             if (((self.cost(optimumClosedList[-1][2]) > self.cost(newclosedList[-1][2])) or not optimumPath) and newpath):
-                optimumPath = newpath
-                optimumClosedList = newclosedList
-                optimumOpenList = newopenList
+                if(newpath[-1] == point):
+                    optimumPath = newpath
+                    optimumClosedList = newclosedList
+                    optimumOpenList = newopenList
         
         if(optimumPath[0] != self.startPoint and mode == 'Primary'):
             path = optimumClosedList[0][2][:]
