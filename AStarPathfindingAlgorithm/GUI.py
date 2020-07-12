@@ -3,31 +3,42 @@ import pygame
 from pygame.locals import *
 from PySide2 import QtWidgets, QtGui, QtCore
 import sys
+from PathFindingAlgorithm import *
+import pdb
 
 WINDOW_WIDTH = 720  
 WINDOW_HEIGHT = 840 
-Columns = 25
-Rows = 25
-Width = int(WINDOW_WIDTH/(Columns-1))
-Height = int(WINDOW_HEIGHT/(Rows-1))
+Width = int(WINDOW_WIDTH/(COLUMNS-1))
+Height = int(WINDOW_HEIGHT/(ROWS-1))
 
 class GUI():
 
-    def __init__(self):
+    def __init__(self, iterative_visualization = True):
         pygame.init()
         self.screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
-        
+
+        self.iterative_visualization = iterative_visualization
         self.running = True
         self.startLocationSet = False
         self.endLocationSet = False
+        self.pathFound = False
         self.obstacleLocations = []
-        #self.state 
+        self.path = []
+        self.closedList = []
+        self.openList = []
         self.infoDisplay()
-
+        
         while self.running:
             self.eventHandler()
 
             self.screen.fill((0,0,0))
+
+            if( self.iterative_visualization == True and self.pathFound and not self.won):
+                #pdb.set_trace()
+                self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
+                self.path = [[x*Width,y*Height] for x,y in self.path]
+                self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]
+                self.openList = [[x*Width,y*Height] for x,y in self.openList]
 
             self.displayGrid()
             self.displayElements()
@@ -38,25 +49,34 @@ class GUI():
 
 
     def displayGrid(self):
-        for col in range(Columns):
-            for row in range(Rows):
+        for col in range(COLUMNS):
+            for row in range(ROWS):
                 pygame.draw.circle(self.screen, (200,200,200), (col*Width,row*Height), int(Width/7.5))
 
-        for col in range(Columns):
+        for col in range(COLUMNS):
             pygame.draw.line(self.screen,(200,200,200),(col*Width,0),(col*Width,WINDOW_HEIGHT))
-        for row in range(Rows):
+        for row in range(ROWS):
             pygame.draw.line(self.screen,(200,200,200),(0,row*Height),(WINDOW_WIDTH,row*Height))
 
     def displayElements(self):
+        prev_pos = (0,0)
+        for i,pos in enumerate(self.obstacleLocations):
+            pygame.draw.circle(self.screen, (165,42,42), [pos[0], pos[1]], int(Width/4))
+        for i,pos in enumerate(self.obstacleLocations):
+            if(i !=0 and (abs(pos[0]-prev_pos[0]) == Width or abs(pos[1]-prev_pos[1]) == Height) and abs(pos[0]-prev_pos[0]) <= Width and abs(pos[1]-prev_pos[1]) <= Height):
+                pygame.draw.line(self.screen, (165,42,42),pos,prev_pos, int(Width/4)) 
+            prev_pos = pos
+        if(self.pathFound):       
+            for i in range(len(self.closedList)):
+                pygame.draw.circle(self.screen, (0,0,0), [int(self.closedList[i][0]), int(self.closedList[i][1])], int(Width/5))
+            for i in range(len(self.openList)):
+                pygame.draw.circle(self.screen, (0,0,255), [int(self.openList[i][0]), int(self.openList[i][1])], int(Width/5))
+            for i in range(len(self.path)-1):
+                pygame.draw.line(self.screen, (0,255,0),[self.path[i][0],self.path[i][1]],[self.path[i+1][0],self.path[i+1][1]], 4) 
         if (self.startLocationSet):
             pygame.draw.circle(self.screen, (0,255,0), self.startLocation, int(Width/5))
         if (self.endLocationSet):
             pygame.draw.circle(self.screen, (255,0,0), self.endLocation, int(Width/5))
-        prev_pos = (0,0)
-        for i,pos in enumerate(self.obstacleLocations):
-            if(i !=0 and (abs(pos[0]-prev_pos[0]) == Width or abs(pos[1]-prev_pos[1]) == Height) and abs(pos[0]-prev_pos[0]) <= Width and abs(pos[1]-prev_pos[1]) <= Height):
-                pygame.draw.line(self.screen, (165,42,42),pos,prev_pos, 4) 
-            prev_pos = pos
 
     def eventHandler(self):
         for event in pygame.event.get():
@@ -73,14 +93,28 @@ class GUI():
                     self.startLocationSet = False
                     self.endLocationSet = False
                     self.obstacleLocations=[]
+                    self.pathFound = False
+                    self.path = []
+                elif(event.key == pygame.K_g ):
+                    self.algorithm = pathFinder([self.startLocation[0]/Width,self.startLocation[1]/Height], [self.endLocation[0]/Width,self.endLocation[1]/Height], [[x/Width,y/Height] for x,y in self.obstacleLocations])
+                    #pdb.set_trace()
+                    if(self.iterative_visualization == True):
+                        self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
+                    else:
+                        self.path,self.closedList,self.openList,self.won = self.algorithm.run()
+                    self.path = [[x*Width,y*Height] for x,y in self.path]
+                    self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]
+                    self.openList = [[x*Width,y*Height] for x,y in self.openList]
+                    self.pathFound = True
+                    self.displayElements()
 
             elif event.type == pygame.QUIT:
                 self.running = False
 
     def setStart(self,pos):
         locationFound = False
-        for col in range(Columns):
-            for row in range(Rows):
+        for col in range(COLUMNS):
+            for row in range(ROWS):
                 if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34)):
                     self.startLocation = [col*Width, row*Height]
                     locationFound = True
@@ -90,28 +124,29 @@ class GUI():
                 break
 
     def setEnd(self,pos):
-        locationFound = False
-        for col in range(Columns):
-            for row in range(Rows):
-                if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34)):
-                    self.endLocation = [col*Width, row*Height]
-                    locationFound = True
+            locationFound = False
+            for col in range(COLUMNS):
+                for row in range(ROWS):
+                    if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34) and [col*Width,row*Height] != self.startLocation):
+                        self.endLocation = [col*Width, row*Height]
+                        locationFound = True
+                        break
+                if locationFound:
+                    self.endLocationSet = True
                     break
-            if locationFound:
-                self.endLocationSet = True
-                break
 
     def setObstableLocations(self,pos):
-        locationFound = False
-        for col in range(Columns):
-            for row in range(Rows):
-                if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34)):
-                    if(not([col*Width, row*Height] in self.obstacleLocations)):
-                        self.obstacleLocations.append([col*Width, row*Height])
-                    locationFound = True
+        if (pos != self.startLocation and pos != self.endLocation):
+            locationFound = False
+            for col in range(COLUMNS):
+                for row in range(ROWS):
+                    if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34) and [col*Width,row*Height] != self.startLocation and [col*Width,row*Height] != self.endLocation):
+                        if(not([col*Width, row*Height] in self.obstacleLocations)):
+                            self.obstacleLocations.append([col*Width, row*Height])
+                        locationFound = True
+                        break
+                if locationFound:
                     break
-            if locationFound:
-                break
 
 
     def infoDisplay(self):
@@ -137,5 +172,5 @@ class GUI():
     def infoText(self):
         self.text = QtWidgets.QLabel(parent = self.infoWindow)
         self.text.setWordWrap(True)
-        self.text.setText("""Click on a vetex to select the start point.\nThen, click on a vertex to select the end point.\nThen, hold left mouse button to draw the obstacles.\n\nPress \'R\' key to reset the software.\n""")
+        self.text.setText("""Click on a vetex to select the start point.\nThen, click on a vertex to select the end point.\nThen, hold left mouse button to draw the obstacles.\n\nPress \'R\' key to reset the software.\nPress \'G\' key to start the software.\n""")
         self.text.resize(self.text.minimumSizeHint())
