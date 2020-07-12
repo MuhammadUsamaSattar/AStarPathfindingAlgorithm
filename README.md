@@ -16,7 +16,9 @@ The image shows the various states of the software. Green dot is the start, red 
 5. Run the main.py script
 
 If you are unable to develop setup.py file, manually install pygames and PySide2 using:
+
 'pip install pygames'
+
 'pip install PySide2'
 
 ## Instructions
