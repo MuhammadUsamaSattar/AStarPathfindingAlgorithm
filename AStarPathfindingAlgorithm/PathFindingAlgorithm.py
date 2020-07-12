@@ -1,5 +1,8 @@
 import math
 
+COLUMNS = 49
+ROWS = 49
+
 class pathFinder():
     def __init__(self, startPoint, endPoint, obstaclePoints):
         self.startPoint = startPoint
@@ -16,26 +19,26 @@ class pathFinder():
         self.addToOpen(self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
         self.sortOpen(self.openList, self.endPoint)
         self.addoptiontoPath(self.path, self.closedList, self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
-        print("Target: ", self.target)
-        #print("Closed list:", self.closedList)
-        #print("Open list:", self.openList)
         print("Path: ", self.path,"\n\n")
 
+    def run(self):
+        while not self.winCondition(self.path, self.endPoint):
+            self.addToOpen(self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
+            self.sortOpen(self.openList, self.endPoint)
+            self.target = self.openList[-1]
+            self.path = []
+            self.path, self.closedList, self.openList = self.getOptimalPath(self.path, self.target, self.closedList, self.openList)
+            print("Path: ", self.path,"\n\n")
+
+        return self.path, self.closedList, self.openList, self.winCondition(self.path, self.endPoint)
+
     def runIter(self):
-        #try:
         self.addToOpen(self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
         self.sortOpen(self.openList, self.endPoint)
         self.target = self.openList[-1]
-        self.path = self.makePath(self.path, self.target, self.closedList, self.openList)
+        self.path = []
         self.path, self.closedList, self.openList = self.getOptimalPath(self.path, self.target, self.closedList, self.openList)
-        print("Target: ", self.target)
-        #print("Closed List: ")
-        #[print(x,"\n") for x in self.closedList]
-        print("Open list:", self.openList)
         print("Path: ", self.path,"\n\n")
-
-        #except Exception as e:
-        #    print(e)
 
         return self.path, self.closedList, self.openList, self.winCondition(self.path, self.endPoint)
 
@@ -56,14 +59,14 @@ class pathFinder():
         options = []
         for x in [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]:
             if(([x[0]+path[-1][0], x[1]+path[-1][1]] not in obstacleList) and ([x[0]+path[-1][0], x[1]+path[-1][1]] not in [point for point,length,prevpath in closedList])):
-                if((x[0]+path[-1][0] > -1) and (x[0]+path[-1][0] < 25) and (x[1]+path[-1][1] > -1) and (x[1]+path[-1][1] < 25) and (([x[0]+path[-1][0],path[-1][1]] not in obstacleList) and ([path[-1][0],x[1]+path[-1][1]] not in obstacleList))):
+                if((x[0]+path[-1][0] > -1) and (x[0]+path[-1][0] < COLUMNS) and (x[1]+path[-1][1] > -1) and (x[1]+path[-1][1] < ROWS) and (([x[0]+path[-1][0],path[-1][1]] not in obstacleList) or ([path[-1][0],x[1]+path[-1][1]] not in obstacleList))):
                         options.append([x[0]+path[-1][0], x[1]+path[-1][1]])
         return options
 
     def sortOptions(self, options, goal):
         for count in range(len(options)-1):
             for i in range(len(options)-1-count):
-                if(self.heuristic(options[i], goal) < self.heuristic(options[i+1], goal)):
+                if(self.heuristic(options[i], goal) <= self.heuristic(options[i+1], goal)):
                     temp = options[i+1]
                     options[i+1] = options[i]
                     options[i] = temp
@@ -72,9 +75,9 @@ class pathFinder():
     def addoptiontoPath(self, path, closedList, openList, options):
         path.append(options[-1])
         if(options[-1] not in [p for p,l,prevpath in closedList]):
-            prev = closedList[-1][2][:]
+            prev = closedList[[p2 for p2,l2,pp22 in closedList].index(path[-2])][2][:]
             prev.append(options[-1])
-            closedList.append([options[-1],(closedList[-1][1]+1),prev])
+            closedList.append([options[-1],(closedList[[p2 for p2,l2,pp22 in closedList].index(path[-2])][1]+1),prev])
         if(options[-1] in openList):
             openList.remove(options[-1])
         options.pop()
@@ -91,12 +94,8 @@ class pathFinder():
             return path
 
     def getOptimalPath(self, path, point, closedList, openList, mode = 'Primary'):
-        #if len(path) > 0:
-        print("Path at start: ", path)
-        #print("Len: ", len(path))
-        #print(mode)
         optimumPath = path
-        optimumClosedList = []
+        optimumClosedList = closedList
         optimumOpenList = []
         newpath = []
         newOpenList = []
@@ -106,28 +105,15 @@ class pathFinder():
             newclosedList = [[closedPoint,length,prevpath]]
             newopenList = []
             newpath = self.makePath(newpath, point, newclosedList, newopenList)
-            print("New closed list: ", newclosedList)
-            #if(mode == "Primary"):
-            #    #print("Entering recursion")
-            #    newpath, newclosedList, newopenList = self.getOptimalPath(newpath, point, newclosedList, newopenList, 'Secondary')
-            if ((newclosedList[-1][1] < len(optimumPath) or not optimumPath) and newpath):
+            if (((self.cost(optimumClosedList[-1][2]) > self.cost(newclosedList[-1][2])) or not optimumPath) and newpath):
                 optimumPath = newpath
                 optimumClosedList = newclosedList
                 optimumOpenList = newopenList
         
-        print("Optimum path found is: ", optimumPath)   
-        
         if(optimumPath[0] != self.startPoint and mode == 'Primary'):
-            print("------------------------------------------------------------------------")
-            print("Path previous: ",optimumClosedList[0][2])
-            print("Optimum path: ", optimumPath)
             path = optimumClosedList[0][2][:]
             path.pop()
             path.extend(optimumPath)
-            print("New path is: ", path)
-            #print("Closed list for optimum is: ")
-            #[print(x,"\n") for x in optimumClosedList]
-            print("------------------------------------------------------------------------")
         else:
             path = optimumPath
         
@@ -145,7 +131,8 @@ class pathFinder():
                 closedList.append([point,length,prevpath])
             else:
                 if( length <= closedList[[p for p,l,pp in closedList].index(point)][1]):
-                    closedList[[p for p,l,pp in closedList].index(point)] = [point,length,prevpath]
+                    closedList.pop([p for p,l,pp in closedList].index(point))
+                    closedList.append([point,length,prevpath])
 
         for point,length,prevpath in closedList:
             if(point in openList):
@@ -157,3 +144,14 @@ class pathFinder():
 
     def heuristic(self, point, goal):
         return math.sqrt(((point[0]-goal[0])*(point[0]-goal[0]))+((point[1]-goal[1])*(point[1]-goal[1])))
+
+    def cost(self, path):
+        diag =0
+        straight = 0 
+        for i in range(len(path)-1):
+            if((abs(path[i][0]-path[i+1][0])+abs(path[i][1]-path[i+1][1])) == 1):
+                straight += 1
+            else:
+                diag += 1
+        total = straight + math.sqrt(2) * diag
+        return total

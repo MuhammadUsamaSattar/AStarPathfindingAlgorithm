@@ -6,19 +6,20 @@ import sys
 from PathFindingAlgorithm import *
 import pdb
 
+#COLUMNS = 50
+#ROWS = 50
 WINDOW_WIDTH = 720  
 WINDOW_HEIGHT = 840 
-Columns = 25
-Rows = 25
-Width = int(WINDOW_WIDTH/(Columns-1))
-Height = int(WINDOW_HEIGHT/(Rows-1))
+Width = int(WINDOW_WIDTH/(COLUMNS-1))
+Height = int(WINDOW_HEIGHT/(ROWS-1))
 
 class GUI():
 
-    def __init__(self):
+    def __init__(self, iterative_visualization = True):
         pygame.init()
         self.screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
-        
+
+        self.iterative_visualization = iterative_visualization
         self.running = True
         self.startLocationSet = False
         self.endLocationSet = False
@@ -28,18 +29,18 @@ class GUI():
         self.closedList = []
         self.openList = []
         self.infoDisplay()
-
+        
         while self.running:
             self.eventHandler()
 
             self.screen.fill((0,0,0))
 
-            if(self.pathFound and not self.won):
+            if( self.iterative_visualization == True and self.pathFound and not self.won):
                 #pdb.set_trace()
                 self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
-                self.path = [[x*30,y*35] for x,y in self.path]
-                self.closedList = [[p[0]*30,p[1]*35] for p,l,pp in self.closedList]
-                self.openList = [[x*30,y*35] for x,y in self.openList]
+                self.path = [[x*Width,y*Height] for x,y in self.path]
+                self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]
+                self.openList = [[x*Width,y*Height] for x,y in self.openList]
 
             self.displayGrid()
             self.displayElements()
@@ -50,20 +51,22 @@ class GUI():
 
 
     def displayGrid(self):
-        for col in range(Columns):
-            for row in range(Rows):
+        for col in range(COLUMNS):
+            for row in range(ROWS):
                 pygame.draw.circle(self.screen, (200,200,200), (col*Width,row*Height), int(Width/7.5))
 
-        for col in range(Columns):
+        for col in range(COLUMNS):
             pygame.draw.line(self.screen,(200,200,200),(col*Width,0),(col*Width,WINDOW_HEIGHT))
-        for row in range(Rows):
+        for row in range(ROWS):
             pygame.draw.line(self.screen,(200,200,200),(0,row*Height),(WINDOW_WIDTH,row*Height))
 
     def displayElements(self):
         prev_pos = (0,0)
         for i,pos in enumerate(self.obstacleLocations):
+            pygame.draw.circle(self.screen, (165,42,42), [pos[0], pos[1]], int(Width/4))
+        for i,pos in enumerate(self.obstacleLocations):
             if(i !=0 and (abs(pos[0]-prev_pos[0]) == Width or abs(pos[1]-prev_pos[1]) == Height) and abs(pos[0]-prev_pos[0]) <= Width and abs(pos[1]-prev_pos[1]) <= Height):
-                pygame.draw.line(self.screen, (165,42,42),pos,prev_pos, 8) 
+                pygame.draw.line(self.screen, (165,42,42),pos,prev_pos, int(Width/4)) 
             prev_pos = pos
         if(self.pathFound):       
             for i in range(len(self.closedList)):
@@ -95,12 +98,15 @@ class GUI():
                     self.pathFound = False
                     self.path = []
                 elif(event.key == pygame.K_g ):
-                    self.algorithm = pathFinder([self.startLocation[0]/30,self.startLocation[1]/35], [self.endLocation[0]/30,self.endLocation[1]/35], [[x/30,y/35] for x,y in self.obstacleLocations])
+                    self.algorithm = pathFinder([self.startLocation[0]/Width,self.startLocation[1]/Height], [self.endLocation[0]/Width,self.endLocation[1]/Height], [[x/Width,y/Height] for x,y in self.obstacleLocations])
                     #pdb.set_trace()
-                    self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
-                    self.path = [[x*30,y*35] for x,y in self.path]
-                    self.closedList = [[p[0]*30,p[1]*35] for p,l,pp in self.closedList]
-                    self.openList = [[x*30,y*35] for x,y in self.openList]
+                    if(self.iterative_visualization == True):
+                        self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
+                    else:
+                        self.path,self.closedList,self.openList,self.won = self.algorithm.run()
+                    self.path = [[x*Width,y*Height] for x,y in self.path]
+                    self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]
+                    self.openList = [[x*Width,y*Height] for x,y in self.openList]
                     self.pathFound = True
                     self.displayElements()
 
@@ -109,8 +115,8 @@ class GUI():
 
     def setStart(self,pos):
         locationFound = False
-        for col in range(Columns):
-            for row in range(Rows):
+        for col in range(COLUMNS):
+            for row in range(ROWS):
                 if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34)):
                     self.startLocation = [col*Width, row*Height]
                     locationFound = True
@@ -121,8 +127,8 @@ class GUI():
 
     def setEnd(self,pos):
             locationFound = False
-            for col in range(Columns):
-                for row in range(Rows):
+            for col in range(COLUMNS):
+                for row in range(ROWS):
                     if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34) and [col*Width,row*Height] != self.startLocation):
                         self.endLocation = [col*Width, row*Height]
                         locationFound = True
@@ -134,8 +140,8 @@ class GUI():
     def setObstableLocations(self,pos):
         if (pos != self.startLocation and pos != self.endLocation):
             locationFound = False
-            for col in range(Columns):
-                for row in range(Rows):
+            for col in range(COLUMNS):
+                for row in range(ROWS):
                     if( abs(pos[0]-(col*Width)) < (Width*0.34) and abs(pos[1]-(row*Height)) < (Height*0.34) and [col*Width,row*Height] != self.startLocation and [col*Width,row*Height] != self.endLocation):
                         if(not([col*Width, row*Height] in self.obstacleLocations)):
                             self.obstacleLocations.append([col*Width, row*Height])
