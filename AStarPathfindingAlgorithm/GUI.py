@@ -34,14 +34,13 @@ class GUI():
             self.screen.fill((0,0,0))
 
             if( self.iterative_visualization == True and self.pathFound and not self.won):
-                print("Entering here")
                 #pdb.set_trace()
                 self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
                 self.path = [[x*Width,y*Height] for x,y in self.path]
                 self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]
                 self.openList = [[x*Width,y*Height] for x,y in self.openList]
                 if self.won:
-                    print("\n\nSolution found")
+                    print("\n\nSolution found!")
                     print("Path: ", [[x/Width,y/Height] for x,y in self.path],"\n\n")
 
             self.displayGrid()
@@ -70,7 +69,7 @@ class GUI():
             if(i !=0 and (abs(pos[0]-prev_pos[0]) == Width or abs(pos[1]-prev_pos[1]) == Height) and abs(pos[0]-prev_pos[0]) <= Width and abs(pos[1]-prev_pos[1]) <= Height):
                 pygame.draw.line(self.screen, (165,42,42),pos,prev_pos, int(Width/4)) 
             prev_pos = pos
-        if(self.pathFound):       
+        if(self.pathFound):
             for i in range(len(self.closedList)):
                 pygame.draw.circle(self.screen, (0,0,0), [int(self.closedList[i][0]), int(self.closedList[i][1])], int(Width/5))
             for i in range(len(self.openList)):
@@ -104,18 +103,16 @@ class GUI():
                     #pdb.set_trace()
                     if(self.iterative_visualization == True):
                         self.path,self.closedList,self.openList,self.won = self.algorithm.firstIter()
+                        self.path = [[x*Width,y*Height] for x,y in self.path]
+                        self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]
+                        self.openList = [[x*Width,y*Height] for x,y in self.openList]
                         if self.won:
-                            print(self.closedList)
-                            self.path = [[x*Width,y*Height] for x,y in self.path]
-                            self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]
-                            self.openList = [[x*Width,y*Height] for x,y in self.openList]
-                            print("\n\nSolutionm found")
+                            print("\n\nSolution found!")
                             print("Path: ", [[x/Width,y/Height] for x,y in self.path],"\n\n")
-                            print(self.closedList)
                     else:
                         self.path,self.closedList,self.openList,self.won = self.algorithm.run()
                         if self.won:
-                            print("\n\nSolution found")
+                            print("\n\nSolution found!")
                             print("Path: ", [[x/Width,y/Height] for x,y in self.path],"\n\n")
                             self.path = [[x*Width,y*Height] for x,y in self.path]
                             self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]

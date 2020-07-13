@@ -21,9 +21,7 @@ class pathFinder():
         self.addToOpen(self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
         self.sortOpen(self.openList, self.endPoint)
         self.addoptiontoPath(self.path, self.closedList, self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
-        #print("Path: ", self.path,"\n\n")
         self.loseCondition(self.openList)
-        print(self.path)
         return self.path, self.closedList, self.openList, self.winCondition(self.path, self.endPoint)
 
     def run(self):
@@ -33,7 +31,6 @@ class pathFinder():
             self.target = self.openList[-1]
             self.path = []
             self.path, self.closedList, self.openList = self.getOptimalPath(self.path, self.target, self.closedList, self.openList)
-            #print("Path: ", self.path,"\n\n")
             self.loseCondition(self.openList)
 
         return self.path, self.closedList, self.openList, self.winCondition(self.path, self.endPoint)
@@ -44,7 +41,6 @@ class pathFinder():
         self.target = self.openList[-1]
         self.path = []
         self.path, self.closedList, self.openList = self.getOptimalPath(self.path, self.target, self.closedList, self.openList)
-        #print("Path: ", self.path,"\n\n")
         self.loseCondition(self.openList)
 
         return self.path, self.closedList, self.openList, self.winCondition(self.path, self.endPoint)
