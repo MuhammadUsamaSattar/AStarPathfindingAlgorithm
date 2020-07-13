@@ -1,4 +1,5 @@
 import math
+import sys
 
 COLUMNS = 25
 ROWS = 25
@@ -15,11 +16,15 @@ class pathFinder():
         self.closedList = [[self.startPoint,1,[self.startPoint]]]
         self.path = [self.startPoint]
         self.target = self.endPoint
-        
+
+    def firstIter(self):
         self.addToOpen(self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
         self.sortOpen(self.openList, self.endPoint)
         self.addoptiontoPath(self.path, self.closedList, self.openList, self.sortOptions(self.addOptions(self.path, self.closedList, self.obstaclePoints), self.endPoint))
-        print("Path: ", self.path,"\n\n")
+        #print("Path: ", self.path,"\n\n")
+        self.loseCondition(self.openList)
+        print(self.path)
+        return self.path, self.closedList, self.openList, self.winCondition(self.path, self.endPoint)
 
     def run(self):
         while not self.winCondition(self.path, self.endPoint):
@@ -28,7 +33,8 @@ class pathFinder():
             self.target = self.openList[-1]
             self.path = []
             self.path, self.closedList, self.openList = self.getOptimalPath(self.path, self.target, self.closedList, self.openList)
-            print("Path: ", self.path,"\n\n")
+            #print("Path: ", self.path,"\n\n")
+            self.loseCondition(self.openList)
 
         return self.path, self.closedList, self.openList, self.winCondition(self.path, self.endPoint)
 
@@ -38,7 +44,8 @@ class pathFinder():
         self.target = self.openList[-1]
         self.path = []
         self.path, self.closedList, self.openList = self.getOptimalPath(self.path, self.target, self.closedList, self.openList)
-        print("Path: ", self.path,"\n\n")
+        #print("Path: ", self.path,"\n\n")
+        self.loseCondition(self.openList)
 
         return self.path, self.closedList, self.openList, self.winCondition(self.path, self.endPoint)
 
@@ -96,7 +103,7 @@ class pathFinder():
                 break
         return path
 
-    def getOptimalPath(self, path, point, closedList, openList, mode = 'Primary'):
+    def getOptimalPath(self, path, point, closedList, openList):
         optimumPath = []
         optimumClosedList = closedList
         optimumOpenList = []
@@ -117,7 +124,7 @@ class pathFinder():
                     optimumClosedList = newclosedList
                     optimumOpenList = newopenList
         
-        if(optimumPath[0] != self.startPoint and mode == 'Primary'):
+        if(optimumPath[0] != self.startPoint):
             path = optimumClosedList[0][2][:]
             path.pop()
             path.extend(optimumPath)
@@ -148,6 +155,11 @@ class pathFinder():
     def winCondition(self, path, goal):
         if(path[-1] == goal):
             return True
+
+    def loseCondition(self, openList):
+        if not openList:
+            print("\n\nNo solution possible\n\n")
+            sys.exit()
 
     def heuristic(self, point, goal):
         return math.sqrt(((point[0]-goal[0])*(point[0]-goal[0]))+((point[1]-goal[1])*(point[1]-goal[1])))

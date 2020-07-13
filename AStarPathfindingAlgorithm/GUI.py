@@ -34,11 +34,15 @@ class GUI():
             self.screen.fill((0,0,0))
 
             if( self.iterative_visualization == True and self.pathFound and not self.won):
+                print("Entering here")
                 #pdb.set_trace()
                 self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
                 self.path = [[x*Width,y*Height] for x,y in self.path]
                 self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]
                 self.openList = [[x*Width,y*Height] for x,y in self.openList]
+                if self.won:
+                    print("\n\nSolution found")
+                    print("Path: ", [[x/Width,y/Height] for x,y in self.path],"\n\n")
 
             self.displayGrid()
             self.displayElements()
@@ -99,12 +103,23 @@ class GUI():
                     self.algorithm = pathFinder([self.startLocation[0]/Width,self.startLocation[1]/Height], [self.endLocation[0]/Width,self.endLocation[1]/Height], [[x/Width,y/Height] for x,y in self.obstacleLocations])
                     #pdb.set_trace()
                     if(self.iterative_visualization == True):
-                        self.path,self.closedList,self.openList,self.won = self.algorithm.runIter()
+                        self.path,self.closedList,self.openList,self.won = self.algorithm.firstIter()
+                        if self.won:
+                            print(self.closedList)
+                            self.path = [[x*Width,y*Height] for x,y in self.path]
+                            self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]
+                            self.openList = [[x*Width,y*Height] for x,y in self.openList]
+                            print("\n\nSolutionm found")
+                            print("Path: ", [[x/Width,y/Height] for x,y in self.path],"\n\n")
+                            print(self.closedList)
                     else:
                         self.path,self.closedList,self.openList,self.won = self.algorithm.run()
-                    self.path = [[x*Width,y*Height] for x,y in self.path]
-                    self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]
-                    self.openList = [[x*Width,y*Height] for x,y in self.openList]
+                        if self.won:
+                            print("\n\nSolution found")
+                            print("Path: ", [[x/Width,y/Height] for x,y in self.path],"\n\n")
+                            self.path = [[x*Width,y*Height] for x,y in self.path]
+                            self.closedList = [[p[0]*Width,p[1]*Height] for p,l,pp in self.closedList]
+                            self.openList = [[x*Width,y*Height] for x,y in self.openList]
                     self.pathFound = True
                     self.displayElements()
 
