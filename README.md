@@ -27,4 +27,4 @@ Run the code to display a popup with instructions on how to use the software.
 
 ## Comments
 
-The code is a functional implementation of A* pathfinindg algorithm. For most cases the path found is the most efficient paths. A bug currently causes the software to sometimes take an inefficient step.
+The code is a functional implementation of A* pathfinindg algorithm.
